@@ -1,0 +1,6 @@
+@RateNowApi_HostAddress = http://localhost:5208
+
+GET {{RateNowApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
