@@ -45,7 +45,11 @@
           "dependencies": {
             "BCrypt.Net-Next": {
               "target": "Package",
+<<<<<<< HEAD
               "version": "[4.0.3, )"
+=======
+              "version": "[4.0.0, )"
+>>>>>>> 721a92f60c6bb73f79dbc247c7cc4dc5ef114b17
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",

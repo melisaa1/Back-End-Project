@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92907717e0541717d05c66a13c7f91f3b12c73d2")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c553df9df3d928575738363a175a54cc403e6eb")]
+>>>>>>> 721a92f60c6bb73f79dbc247c7cc4dc5ef114b17
 [assembly: System.Reflection.AssemblyProductAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

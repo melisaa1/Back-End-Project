@@ -2,10 +2,12 @@
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace RateNowApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetupWithSeeding : Migration
+    public partial class FinalDatabaseSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -162,6 +164,52 @@ namespace RateNowApi.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Movies",
+                columns: new[] { "Id", "Title" },
+                values: new object[,]
+                {
+                    { 1, "The Git Abomination" },
+                    { 2, "The Last Commit" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Email", "PasswordHash", "UserName" },
+                values: new object[,]
+                {
+                    { 1, "melisa@example.com", "$2a$11$F6deNmYFsWmp9g7bwg0UteQokiQZmAEkjDk4nHM4QnR/WDE.2FlrG", "MelisaAdmin" },
+                    { 2, "rahmah@example.com", "$2a$11$SfhSi93nAlOJp41Oybn7m.YHrKrcD5fIWH4LSd7T6AwFvjRsC26K2", "RahmahUser" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Ratings",
+                columns: new[] { "Id", "MovieId", "SeriesId", "UserId", "Value" },
+                values: new object[,]
+                {
+                    { 1, 1, null, 1, 5 },
+                    { 2, 1, null, 2, 3 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Reviews",
+                columns: new[] { "Id", "MovieId", "SeriesId", "Text", "UserId" },
+                values: new object[,]
+                {
+                    { 1, 1, null, "Muhteşem bir filmdi, 10/10.", 1 },
+                    { 2, 1, null, "Ortalama bir yapım, beklentiyi karşılamadı.", 2 },
+                    { 3, 2, null, "Git öğrenme sürecimi özetliyor.", 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserFriends",
+                columns: new[] { "FriendId", "UserId" },
+                values: new object[,]
+                {
+                    { 1, 2 },
+                    { 2, 1 }
                 });
 
             migrationBuilder.CreateIndex(
