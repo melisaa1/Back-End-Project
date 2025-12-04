@@ -127,3 +127,7 @@
 /Users/user/Back-End-Project/obj/Debug/net8.0/RateNowApi.pdb
 /Users/user/Back-End-Project/obj/Debug/net8.0/RateNowApi.genruntimeconfig.cache
 /Users/user/Back-End-Project/obj/Debug/net8.0/ref/RateNowApi.dll
+/Users/user/Back-End-Project/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll

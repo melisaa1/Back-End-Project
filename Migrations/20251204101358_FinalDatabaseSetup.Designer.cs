@@ -11,8 +11,8 @@ using RateNowApi.Data;
 namespace RateNowApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251202121844_InitialSetupWithSeeding")]
-    partial class InitialSetupWithSeeding
+    [Migration("20251204101358_FinalDatabaseSetup")]
+    partial class FinalDatabaseSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,29 @@ namespace RateNowApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MovieId = 1,
+                            Text = "Muhteşem bir filmdi, 10/10.",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            MovieId = 1,
+                            Text = "Ortalama bir yapım, beklentiyi karşılamadı.",
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            MovieId = 2,
+                            Text = "Git öğrenme sürecimi özetliyor.",
+                            UserId = 1
+                        });
                 });
 
             modelBuilder.Entity("RateNowApi.Models.Movie", b =>
@@ -63,6 +86,18 @@ namespace RateNowApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Movies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Title = "The Git Abomination"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Title = "The Last Commit"
+                        });
                 });
 
             modelBuilder.Entity("RateNowApi.Models.Rating", b =>
@@ -92,6 +127,22 @@ namespace RateNowApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Ratings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MovieId = 1,
+                            UserId = 1,
+                            Value = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            MovieId = 1,
+                            UserId = 2,
+                            Value = 3
+                        });
                 });
 
             modelBuilder.Entity("RateNowApi.Models.Series", b =>
@@ -133,6 +184,22 @@ namespace RateNowApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "melisa@example.com",
+                            PasswordHash = "$2a$11$F6deNmYFsWmp9g7bwg0UteQokiQZmAEkjDk4nHM4QnR/WDE.2FlrG",
+                            UserName = "MelisaAdmin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "rahmah@example.com",
+                            PasswordHash = "$2a$11$SfhSi93nAlOJp41Oybn7m.YHrKrcD5fIWH4LSd7T6AwFvjRsC26K2",
+                            UserName = "RahmahUser"
+                        });
                 });
 
             modelBuilder.Entity("RateNowApi.Models.WatchlistItem", b =>
@@ -174,6 +241,18 @@ namespace RateNowApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserFriends");
+
+                    b.HasData(
+                        new
+                        {
+                            FriendId = 2,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            FriendId = 1,
+                            UserId = 2
+                        });
                 });
 
             modelBuilder.Entity("RateNow.Models.Review", b =>

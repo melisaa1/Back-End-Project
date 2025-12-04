@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using RateNowApi.Models;
-using BCrypt.Net; // Parola hashleme için gerekli
+using RateNowApi.Models; // Doğru Model namespace'i
+using BCrypt.Net;
+using System.Collections.Generic;
+using RateNow.Models; // Dictionary için gerekli
 
 namespace RateNowApi.Data
 {
@@ -63,7 +65,6 @@ namespace RateNowApi.Data
                 .OnDelete(DeleteBehavior.Cascade);
             
             // User <-> User (ZORUNLU Çoka-Çok İlişkisi - Arkadaşlık/Takip)
-            // Kendi kendine referans veren Many-to-Many ilişkisi
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Friends)
                 .WithMany(u => u.FriendOf)
@@ -71,12 +72,17 @@ namespace RateNowApi.Data
                     "UserFriends", 
                         j => j.HasOne<User>().WithMany().HasForeignKey("FriendId").OnDelete(DeleteBehavior.Cascade),
                          j => j.HasOne<User>().WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Cascade)
-                );
-            
+                )
+                // Hatalı zincirleme yerine doğrudan HasData çağrısı
+                .HasData(
+                new Dictionary<string, object> { { "UserId", 1 }, { "FriendId", 2 } }, 
+                new Dictionary<string, object> { { "UserId", 2 }, { "FriendId", 1 } }
+                   ); // <-- Bu satırda noktalı virgül var!
+
             // Parola Hash'i Zorunlu Yapma (Güvenlik için)
             modelBuilder.Entity<User>()
                 .Property(u => u.PasswordHash)
-                .IsRequired(); 
+                .IsRequired();
 
 
             // **********************************************
@@ -107,24 +113,19 @@ namespace RateNowApi.Data
             modelBuilder.Entity<Movie>().HasData(movie1, movie2);
 
             // Yorum Verileri (Bire-Çok Testi)
-            modelBuilder.Entity<Review>().HasData(
-                new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
-                new Review { Id = 2, UserId = 2, MovieId = 1, Text = "Ortalama bir yapım, beklentiyi karşılamadı." },
-                new Review { Id = 3, UserId = 1, MovieId = 2, Text = "Git öğrenme sürecimi özetliyor." }
-            );
+           modelBuilder.Entity<Review>().HasData(
+           new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
+           new Review { Id = 2, UserId = 2, MovieId = 1, Text = "Ortalama bir yapım, beklentiyi karşılamadı." },
+           new Review { Id = 3, UserId = 1, MovieId = 2, Text = "Git öğrenme sürecimi özetliyor." }
+           );
 
             // Derecelendirme Verileri
-            modelBuilder.Entity<Rating>().HasData(
-                new Rating { Id = 1, UserId = 1, MovieId = 1, Value = 5 },
-                new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
+           modelBuilder.Entity<Rating>().HasData(
+           new Rating { Id = 1, UserId = 1, MovieId = 1, Value = 5 },
+           new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
             );
-            
-            // Arkadaşlık Verileri (Çoka-Çok Testi)
-            // UserFriends ara tablosuna veri ekleniyor
-            modelBuilder.Entity<Dictionary<string, object>>("UserFriends").HasData(
-                new { UserId = 1, FriendId = 2 }, 
-                new { UserId = 2, FriendId = 1 } 
-            );
+    
+           
         }
     }
 }
