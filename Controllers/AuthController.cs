@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RateNowApi.Data;
 using RateNowApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
+using BCrypt.Net;
 
 namespace RateNowApi.Controllers
 {
@@ -11,63 +14,71 @@ namespace RateNowApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _config;
 
-        public AuthController(AppDbContext context)
+        public AuthController(AppDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
-        // GET: api/users/5 - Kullanıcı profilini getir
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        // REGISTER
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] User user)
         {
-            // Parola hash'ini ifşa etmemek için seçici kolon çekimi yapılmalıdır (DTO gereksinimi)
-            var user = await _context.Users
-                .Select(u => new User
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Email = u.Email,
-                    // Diğer ilgili koleksiyonlar (Ratings, Reviews vb.)
-                })
-                .FirstOrDefaultAsync(u => u.Id == id);
+            if (_context.Users.Any(u => u.Email == user.Email))
+                return BadRequest("Email already exists");
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
 
-            return user;
-        }
-
-        // PATCH: api/users/5 - Profil Bilgisini Güncelle (3.1.1 PATCH kullanımı)
-        // [Authorize] (Sadece kullanıcı kendi profilini güncelleyebilir)
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser(int id, User userChanges)
-        {
-            // DTO kullanılmadığı için sadece bir alanın güncellendiğini varsayalım.
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound();
-
-            // Sadece kullanıcı adı güncellensin (Örnek)
-            if (!string.IsNullOrEmpty(userChanges.UserName))
-            {
-                user.UserName = userChanges.UserName;
-            }
-
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return NoContent(); // 204 No Content
+
+            return Ok("User registered successfully");
         }
 
-        // POST: api/users/5/friends/10 - Arkadaş Ekle/Takip Et (Çoka-Çok İlişkisi Yönetimi)
-        // [Authorize]
-        [HttpPost("{userId}/friends/{friendId}")]
-        public async Task<IActionResult> AddFriend(int userId, int friendId)
+        // LOGIN
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDto dto)
         {
-             // İş mantığı ve Çoka-Çok ilişkisi burada yönetilir
-             // User.Friends koleksiyonunu güncelleyen kod burada olmalıdır.
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
 
-             return Ok(new { Message = "Arkadaşlık isteği gönderildi/Kullanıcı takip edildi." });
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+                return Unauthorized("Invalid email or password");
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new { token });
         }
+
+        private string GenerateJwtToken(User user)
+        {
+            var jwt = _config.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwt["Issuer"],
+                audience: jwt["Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwt["ExpiryMinutes"])),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+
+    public class LoginDto
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }
