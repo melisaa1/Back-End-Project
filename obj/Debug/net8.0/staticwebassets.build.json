@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "eQUIo15cQnsVkDdjjMp5SoX4CssDABVW7Q4ppnBj5EM=",
+  "Source": "RateNowApi",
+  "BasePath": "_content/RateNowApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
