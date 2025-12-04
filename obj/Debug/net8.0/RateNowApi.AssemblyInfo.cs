@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a546e3222abe9c69262848e911316a73c5ebbe6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c2772b6ee036b43cd36a742f253c48b7fe2e7fa8")]
 [assembly: System.Reflection.AssemblyProductAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RateNowApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
