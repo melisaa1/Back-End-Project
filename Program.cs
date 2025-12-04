@@ -4,6 +4,9 @@ using RateNowApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
+
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
@@ -26,7 +29,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers(); // controllers approach
