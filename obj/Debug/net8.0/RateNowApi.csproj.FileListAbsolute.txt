@@ -1,3 +1,11 @@
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.csproj.AssemblyReference.cache
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.AssemblyInfoInputs.cache
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.AssemblyInfo.cs
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.csproj.CoreCompileInputs.cache
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.sourcelink.json
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\appsettings.json
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\RateNowApi.exe
@@ -109,14 +117,6 @@ C:\Users\HP\RateNowApi\bin\Debug\net8.0\runtimes\win-arm\native\e_sqlite3.dll
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\HP\RateNowApi\bin\Debug\net8.0\runtimes\win-x86\native\e_sqlite3.dll
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.csproj.AssemblyReference.cache
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.AssemblyInfoInputs.cache
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.AssemblyInfo.cs
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.csproj.CoreCompileInputs.cache
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\HP\RateNowApi\obj\Debug\net8.0\RateNowApi.sourcelink.json
 C:\Users\HP\RateNowApi\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\HP\RateNowApi\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\HP\RateNowApi\obj\Debug\net8.0\staticwebassets\msbuild.RateNowApi.Microsoft.AspNetCore.StaticWebAssets.props
