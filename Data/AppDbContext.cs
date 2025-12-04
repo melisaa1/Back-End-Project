@@ -1,15 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-<<<<<<< HEAD
 using RateNowApi.Models;
 using BCrypt.Net;
 using RateNow.Models;
 //using RateNow.Models; // Parola hashleme için gerekli
-=======
-using RateNowApi.Models; // Doğru Model namespace'i
-using BCrypt.Net;
-using System.Collections.Generic;
-using RateNow.Models; // Dictionary için gerekli
->>>>>>> 721a92f60c6bb73f79dbc247c7cc4dc5ef114b17
 
 namespace RateNowApi.Data
 
@@ -70,9 +63,7 @@ namespace RateNowApi.Data
                 .OnDelete(DeleteBehavior.Cascade);
             
             // User <-> User (ZORUNLU Çoka-Çok İlişkisi - Arkadaşlık/Takip)
-<<<<<<< HEAD
-            // Kendi kendine referans veren Many-to-Many ilişkisi
-=======
+
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Friends)
                 .WithMany(u => u.FriendOf)
@@ -98,7 +89,6 @@ namespace RateNowApi.Data
             // **********************************************
             
             // Kullanıcı Verileri
->>>>>>> 721a92f60c6bb73f79dbc247c7cc4dc5ef114b17
             var user1 = new User 
             { 
                 Id = 1, 
@@ -145,7 +135,7 @@ namespace RateNowApi.Data
             var movie2 = new Movie { Id = 2, Title = "The Last Commit" };
             modelBuilder.Entity<Movie>().HasData(movie1, movie2);
 
-<<<<<<< HEAD
+
             modelBuilder.Entity<Review>().HasData(
                 new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
                 new Review { Id = 2, UserId = 2, MovieId = 1, Text = "Ortalama bir yapım, beklentiyi karşılamadı." },
@@ -159,7 +149,6 @@ namespace RateNowApi.Data
             
 
             
-=======
             // Yorum Verileri (Bire-Çok Testi)
            modelBuilder.Entity<Review>().HasData(
            new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
@@ -173,8 +162,7 @@ namespace RateNowApi.Data
            new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
             );
     
-           
->>>>>>> 721a92f60c6bb73f79dbc247c7cc4dc5ef114b17
+     
         }
     }
 }
