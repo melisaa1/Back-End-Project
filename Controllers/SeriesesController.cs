@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using RateNowApi.Data;
 using RateNowApi.Models;
@@ -17,8 +18,6 @@ namespace RateNowApi.Controllers
             _context = context;
         }
 
-        // 1. READ (GET) - Tüm Dizileri Listele (3.1.1 CRUD)
-        // GET: api/series
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Series>>> GetSeries() // 3.1.2 async/await
         {
@@ -29,8 +28,6 @@ namespace RateNowApi.Controllers
             return await _context.Serieses.ToListAsync();
         }
 
-        // 2. READ (GET) - Belirli Bir Diziyi Getir (3.1.1 CRUD)
-        // GET: api/series/1
         [HttpGet("{id}")]
         public async Task<ActionResult<Series>> GetSeries(int id)
         {
@@ -51,9 +48,7 @@ namespace RateNowApi.Controllers
             return series;
         }
 
-        // 3. CREATE (POST) - Yeni Dizi Ekle (3.1.1 CRUD)
-        // POST: api/series
-        // [Authorize(Roles = "Admin")] // Admin yetkilendirmesi (Daha sonra eklenebilir)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Series>> PostSeries(Series series)
         {
@@ -69,8 +64,7 @@ namespace RateNowApi.Controllers
             return CreatedAtAction(nameof(GetSeries), new { id = series.Id }, series);
         }
 
-        // 4. UPDATE (PUT) - Diziyi Tamamen Güncelle (3.1.1 CRUD)
-        // PUT: api/series/1
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSeries(int id, Series series)
         {
@@ -100,9 +94,7 @@ namespace RateNowApi.Controllers
             return NoContent(); // 204 No Content
         }
 
-        // 5. DELETE - Diziyi Sil (3.1.1 CRUD)
-        // DELETE: api/series/1
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSeries(int id)
         {
