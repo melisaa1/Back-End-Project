@@ -1,8 +1,9 @@
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using RateNowApi.Configurations;
+
 using RateNowApi.Data;
 using RateNowApi.Models;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -12,16 +13,17 @@ namespace RateNowApi.Services
 {
     public class AuthService
     {
-        private readonly JwtSettings _jwtSettings;
+
+        private readonly IConfiguration _config;
         private readonly AppDbContext _context;
 
-        public AuthService(IOptions<JwtSettings> jwtOptions, AppDbContext context)
+        public AuthService(IConfiguration config, AppDbContext context)
         {
-            _jwtSettings = jwtOptions.Value;
+            _config = config;
             _context = context;
         }
 
-
+        // Hash password
         public string HashPassword(string password)
         {
             using var sha = SHA256.Create();
@@ -35,26 +37,30 @@ namespace RateNowApi.Services
             return HashPassword(password) == hashedPassword;
         }
 
-  
+
+        // Create JWT Token
         public string GenerateJwtToken(User user)
         {
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
-            var securityKey = new SymmetricSecurityKey(key);
+            var secretKey = _config["Jwt:Key"] ?? throw new Exception("JWT key is missing");
+            var issuer = _config["Jwt:Issuer"];
+            var audience = _config["Jwt:Audience"];
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            // Important: include role claim for Role-Based Authorization
-            var claims = new List<Claim>
+            var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role ?? "User") // default User role
+                new Claim(ClaimTypes.Role, user.Role)  
             };
 
             var token = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                issuer,
+                audience,
+                claims,
+                expires: DateTime.UtcNow.AddMinutes(60),
+
                 signingCredentials: credentials
             );
 
