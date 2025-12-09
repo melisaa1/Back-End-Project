@@ -18,37 +18,36 @@ namespace RateNowApi.Controllers
             _context = context;
             _authService = authService;
         }
-
-        // -----------------------------
-        //        REGISTER USER
-        // -----------------------------
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Check unique email
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
-            {
-                return BadRequest("User already exists.");
-            }
+                return BadRequest("A user with this email already exists.");
 
             var user = new User
             {
                 UserName = request.Name,
                 Email = request.Email,
-                PasswordHash = _authService.HashPassword(request.Password)
+                PasswordHash = _authService.HashPassword(request.Password),
+                Role = request.Role ?? "User"  // default role
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("User registered successfully");
+            return Ok(new { Message = "User registered successfully", UserId = user.Id });
         }
 
-        // -----------------------------
-        //           LOGIN
-        // -----------------------------
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null)
@@ -61,18 +60,28 @@ namespace RateNowApi.Controllers
 
             string token = _authService.GenerateJwtToken(user);
 
-            return Ok(new { Token = token });
+            return Ok(new
+            {
+                Token = token,
+                User = new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    user.Role
+                }
+            });
         }
     }
 
-    // -----------------------------
-    //        REQUEST MODELS
-    // -----------------------------
+   
+
     public class RegisterRequest
     {
         public string Name { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
+        public string? Role { get; set; } // optional (Admin, User…)
     }
 
     public class LoginRequest

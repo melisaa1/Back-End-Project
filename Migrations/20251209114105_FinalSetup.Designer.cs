@@ -11,8 +11,8 @@ using RateNowApi.Data;
 namespace RateNowApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251204101358_FinalDatabaseSetup")]
-    partial class FinalDatabaseSetup
+    [Migration("20251209114105_FinalSetup")]
+    partial class FinalSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,21 +54,21 @@ namespace RateNowApi.Migrations
                         {
                             Id = 1,
                             MovieId = 1,
-                            Text = "Muhteşem bir filmdi, 10/10.",
+                            Text = "This movie was amazing!, 10/10.",
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
                             MovieId = 1,
-                            Text = "Ortalama bir yapım, beklentiyi karşılamadı.",
+                            Text = "I dont like it very much.",
                             UserId = 2
                         },
                         new
                         {
                             Id = 3,
                             MovieId = 2,
-                            Text = "Git öğrenme sürecimi özetliyor.",
+                            Text = "I like it.",
                             UserId = 1
                         });
                 });
@@ -177,6 +177,10 @@ namespace RateNowApi.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -190,14 +194,16 @@ namespace RateNowApi.Migrations
                         {
                             Id = 1,
                             Email = "melisa@example.com",
-                            PasswordHash = "$2a$11$F6deNmYFsWmp9g7bwg0UteQokiQZmAEkjDk4nHM4QnR/WDE.2FlrG",
+                            PasswordHash = "$2a$11$iTJRPFsz/EzKH5axKZcJYep1Cue64kze6U9D8CDv8jR/0RQ/UcUvq",
+                            Role = "User",
                             UserName = "MelisaAdmin"
                         },
                         new
                         {
                             Id = 2,
                             Email = "rahmah@example.com",
-                            PasswordHash = "$2a$11$SfhSi93nAlOJp41Oybn7m.YHrKrcD5fIWH4LSd7T6AwFvjRsC26K2",
+                            PasswordHash = "$2a$11$k7yvHz3c6FHRxoWt4ZfVROBQsdSm3FWoXjzfs.4uGPpSq4CkwwhWy",
+                            Role = "User",
                             UserName = "RahmahUser"
                         });
                 });

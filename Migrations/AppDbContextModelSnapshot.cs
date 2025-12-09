@@ -44,28 +44,28 @@ namespace RateNowApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             MovieId = 1,
-                            Text = "Muhteşem bir filmdi, 10/10.",
+                            Text = "This movie was amazing!, 10/10.",
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
                             MovieId = 1,
-                            Text = "Ortalama bir yapım, beklentiyi karşılamadı.",
+                            Text = "I dont like it very much.",
                             UserId = 2
                         },
                         new
                         {
                             Id = 3,
                             MovieId = 2,
-                            Text = "Git öğrenme sürecimi özetliyor.",
+                            Text = "I like it.",
                             UserId = 1
                         });
                 });
@@ -82,7 +82,7 @@ namespace RateNowApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Movies", (string)null);
 
                     b.HasData(
                         new
@@ -123,7 +123,7 @@ namespace RateNowApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Ratings", (string)null);
 
                     b.HasData(
                         new
@@ -157,7 +157,7 @@ namespace RateNowApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Serieses");
+                    b.ToTable("Serieses", (string)null);
                 });
 
             modelBuilder.Entity("RateNowApi.Models.User", b =>
@@ -174,27 +174,33 @@ namespace RateNowApi.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Email = "melisa@example.com",
-                            PasswordHash = "$2a$11$F6deNmYFsWmp9g7bwg0UteQokiQZmAEkjDk4nHM4QnR/WDE.2FlrG",
+                            PasswordHash = "$2a$11$iTJRPFsz/EzKH5axKZcJYep1Cue64kze6U9D8CDv8jR/0RQ/UcUvq",
+                            Role = "User",
                             UserName = "MelisaAdmin"
                         },
                         new
                         {
                             Id = 2,
                             Email = "rahmah@example.com",
-                            PasswordHash = "$2a$11$SfhSi93nAlOJp41Oybn7m.YHrKrcD5fIWH4LSd7T6AwFvjRsC26K2",
+                            PasswordHash = "$2a$11$k7yvHz3c6FHRxoWt4ZfVROBQsdSm3FWoXjzfs.4uGPpSq4CkwwhWy",
+                            Role = "User",
                             UserName = "RahmahUser"
                         });
                 });
@@ -222,7 +228,7 @@ namespace RateNowApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WatchlistItems");
+                    b.ToTable("WatchlistItems", (string)null);
                 });
 
             modelBuilder.Entity("UserFriends", b =>
@@ -237,7 +243,7 @@ namespace RateNowApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserFriends");
+                    b.ToTable("UserFriends", (string)null);
 
                     b.HasData(
                         new
