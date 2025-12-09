@@ -1,15 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using RateNowApi.Data;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using RateNowApi.Services;
+using RateNowApi.Configurations;   
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt")
+);
+
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
 builder.Services.AddScoped<AuthService>();
 
@@ -26,42 +31,51 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
-// Add services
-builder.Services.AddControllers(); // controllers approach
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// configure sqlite (for dev)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=movietracker.db"));
-
-// optional: add JWT auth here (omitted for brevity), but you can add later.
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Data Source=movietracker.db"));
 
 var app = builder.Build();
 
-// apply migrations automatically in dev (optional)
-using (var scope = app.Services.CreateScope()) {
+using (var scope = app.Services.CreateScope())
+{
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

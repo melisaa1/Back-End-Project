@@ -49,8 +49,7 @@ namespace RateNowApi.Controllers
             return CreatedAtAction(nameof(GetRating), new { id = rating.Id }, rating); // 201 Created
         }
 
-        // PUT: api/ratings/5 - Puanı güncelle
-        // [Authorize] (Yalnızca puanı veren güncelleyebilir)
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
