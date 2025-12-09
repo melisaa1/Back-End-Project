@@ -1,0 +1,21 @@
+# Ignore build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Visual Studio files
+.vs/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# NuGet
+*.nupkg
+*.nuget.g.props
+*.nuget.g.targets
+project.assets.json

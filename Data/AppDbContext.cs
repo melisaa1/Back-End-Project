@@ -1,16 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using RateNowApi.Models; // Doğru Model namespace'i
+using RateNowApi.Models;
 using BCrypt.Net;
-using System.Collections.Generic;
-using RateNow.Models; // Dictionary için gerekli
+using RateNow.Models;
+//using RateNow.Models; // Parola hashleme için gerekli
 
 namespace RateNowApi.Data
+
 {
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
+            
         }
 
         // DB SETS
@@ -23,12 +25,9 @@ namespace RateNowApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             base.OnModelCreating(modelBuilder);
-
-            // **********************************************
-            // 1. ZORUNLU İLİŞKİLER (3.1.2 - Bire-Çok & Çoka-Çok)
-            // **********************************************
-
+            
             // User-Rating (Bire-Çok)
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.User)
@@ -65,6 +64,7 @@ namespace RateNowApi.Data
                 .OnDelete(DeleteBehavior.Cascade);
             
             // User <-> User (ZORUNLU Çoka-Çok İlişkisi - Arkadaşlık/Takip)
+
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Friends)
                 .WithMany(u => u.FriendOf)
@@ -106,12 +106,50 @@ namespace RateNowApi.Data
             };
 
             modelBuilder.Entity<User>().HasData(user1, user2);
+            
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Friends)
+                .WithMany(u => u.FriendOf)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserFriends", 
+                        j => j.HasOne<User>().WithMany().HasForeignKey("FriendId").OnDelete(DeleteBehavior.Cascade),
+                        j => j.HasOne<User>().WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Cascade),
+                        j =>{
+                                 j.HasKey("UserId", "FriendId");
+                            }
+                ).HasData(
+                new Dictionary<string, object>{ {"UserId", 1},{ "FriendId", 2 }}, 
+                new Dictionary<string, object>{ {"UserId", 2},{ "FriendId", 1 }}
+            );
+            
+            // Parola Hash'i Zorunlu Yapma (Güvenlik için)
+            modelBuilder.Entity<User>()
+                .Property(u => u.PasswordHash)
+                .IsRequired(); 
 
-            // Film Verileri
+
+            // **********************************************
+            // 2. DATABASE SEEDING (3.1.2)
+            // **********************************************
+            
             var movie1 = new Movie { Id = 1, Title = "The Git Abomination" };
             var movie2 = new Movie { Id = 2, Title = "The Last Commit" };
             modelBuilder.Entity<Movie>().HasData(movie1, movie2);
 
+
+            modelBuilder.Entity<Review>().HasData(
+                new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
+                new Review { Id = 2, UserId = 2, MovieId = 1, Text = "Ortalama bir yapım, beklentiyi karşılamadı." },
+                new Review { Id = 3, UserId = 1, MovieId = 2, Text = "Git öğrenme sürecimi özetliyor." }
+            );
+
+            modelBuilder.Entity<Rating>().HasData(
+                new Rating { Id = 1, UserId = 1, MovieId = 1, Value = 5 },
+                new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
+            );
+            
+
+            
             // Yorum Verileri (Bire-Çok Testi)
            modelBuilder.Entity<Review>().HasData(
            new Review { Id = 1, UserId = 1, MovieId = 1, Text = "Muhteşem bir filmdi, 10/10." },
@@ -125,7 +163,7 @@ namespace RateNowApi.Data
            new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
             );
     
-           
+     
         }
     }
 }
