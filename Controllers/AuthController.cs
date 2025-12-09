@@ -1,35 +1,41 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using RateNowApi.Data;
 using RateNowApi.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using BCrypt.Net;
+using RateNowApi.Services;
 
 namespace RateNowApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
+        private readonly AuthService _authService;
 
-        public AuthController(AppDbContext context, IConfiguration config)
+        public AuthController(AppDbContext context, AuthService authService)
         {
             _context = context;
-            _config = config;
+            _authService = authService;
         }
 
-        // REGISTER
+        // -----------------------------
+        //        REGISTER USER
+        // -----------------------------
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-            if (_context.Users.Any(u => u.Email == user.Email))
-                return BadRequest("Email already exists");
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            {
+                return BadRequest("User already exists.");
+            }
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+            var user = new User
+            {
+                UserName = request.Name,
+                Email = request.Email,
+                PasswordHash = _authService.HashPassword(request.Password)
+            };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -37,48 +43,41 @@ namespace RateNowApi.Controllers
             return Ok("User registered successfully");
         }
 
-        // LOGIN
+        // -----------------------------
+        //           LOGIN
+        // -----------------------------
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized("Invalid email or password");
+            if (user == null)
+                return Unauthorized("Invalid email or password.");
 
-            var token = GenerateJwtToken(user);
+            bool passwordValid = _authService.VerifyPassword(request.Password, user.PasswordHash);
 
-            return Ok(new { token });
-        }
+            if (!passwordValid)
+                return Unauthorized("Invalid email or password.");
 
-        private string GenerateJwtToken(User user)
-        {
-            var jwt = _config.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]));
+            string token = _authService.GenerateJwtToken(user);
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-
-            var token = new JwtSecurityToken(
-                issuer: jwt["Issuer"],
-                audience: jwt["Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwt["ExpiryMinutes"])),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new { Token = token });
         }
     }
 
-    public class LoginDto
+    // -----------------------------
+    //        REQUEST MODELS
+    // -----------------------------
+    public class RegisterRequest
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string Name { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Password { get; set; } = null!;
+    }
+
+    public class LoginRequest
+    {
+        public string Email { get; set; } = null!;
+        public string Password { get; set; } = null!;
     }
 }
