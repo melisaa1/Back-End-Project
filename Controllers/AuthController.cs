@@ -13,21 +13,29 @@ namespace RateNowApi.Controllers
         private readonly AppDbContext _context;
         private readonly AuthService _authService;
 
-        public AuthController(AppDbContext context, AuthService authService)
-        {
+       private readonly ILogger<AuthController> _logger;
+
+       public AuthController(AppDbContext context, AuthService authService, ILogger<AuthController> logger)
+    {
             _context = context;
             _authService = authService;
-        }
+            _logger = logger;
+   }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
+            _logger.LogInformation("Register attempt for email: {Email}", request.Email);
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             // Check unique email
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email)){
+                _logger.LogWarning("Registration failed: Email already exists -> {Email}", request.Email);
                 return BadRequest("A user with this email already exists.");
 
+            }
             var user = new User
             {
                 UserName = request.Name,
@@ -38,25 +46,36 @@ namespace RateNowApi.Controllers
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
+            _logger.LogInformation("User registered successfully: {Email}", request.Email); 
             return Ok(new { Message = "User registered successfully", UserId = user.Id });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
+            _logger.LogInformation("Login attempt for email: {Email}", request.Email);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null)
-                return Unauthorized("Invalid email or password.");
+            {
+                _logger.LogWarning("Login failed: User not found -> {Email}", request.Email);
+                 return Unauthorized("Invalid email or password.");
+            }
+                
 
             bool passwordValid = _authService.VerifyPassword(request.Password, user.PasswordHash);
 
             if (!passwordValid)
-                return Unauthorized("Invalid email or password.");
+            {
+                _logger.LogWarning("Login failed: Invalid password for email -> {Email}", request.Email);
+                 return Unauthorized("Invalid email or password.");
+
+            }
+                _logger.LogInformation("User logged in successfully: {Email}", request.Email);
+                
 
             string token = _authService.GenerateJwtToken(user);
 
