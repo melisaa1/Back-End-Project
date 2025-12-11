@@ -6,6 +6,7 @@ using System.Text;
 using RateNowApi.Services;
 using RateNowApi.Configurations;
 using Microsoft.Extensions.Options;
+using Back;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<MoviesService>();
 builder.Services.AddScoped<RatingService>();
-builder.Services.AddScoped<SeriesService>();
+builder.Services.AddScoped<SeriesesService>();
 builder.Services.AddScoped<WatchlistService>();
 
 builder.Services.AddHttpContextAccessor();
@@ -54,8 +55,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
