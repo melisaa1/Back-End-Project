@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RateNowApi.Data;
 using RateNowApi.Models;
+using RateNowApi.Services;
 
 namespace RateNowApi.Controllers
 {
@@ -9,71 +8,54 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class WatchlistController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly WatchlistService _service;
+        private readonly ILogger<WatchlistController> _logger;
 
-        public WatchlistController(AppDbContext context)
+        public WatchlistController(WatchlistService service, ILogger<WatchlistController> logger)
         {
-            _context = context;
+            _service = service;
+            _logger = logger;
         }
 
-        // GET: api/watchlist?userId=1 - Belirli bir kullanıcının listesini getir
-        // [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WatchlistItem>>> GetWatchlist([FromQuery] int userId)
         {
-            // Gerçek projede, userId token'dan alınmalıdır (Güvenlik)
-            var watchlist = await _context.WatchlistItems
-                .Where(item => item.UserId == userId)
-                .ToListAsync();
-
-            return Ok(watchlist); // 200 OK
+            var list = await _service.GetWatchlistAsync(userId);
+            return Ok(list);
         }
 
-        // POST: api/watchlist - Listeye yeni film/dizi ekle
-        // [Authorize]
         [HttpPost]
-        public async Task<ActionResult<WatchlistItem>> AddToWatchlist(WatchlistItem item)
+        public async Task<ActionResult> AddToWatchlist(WatchlistItem item)
         {
-            // Kullanıcının daha önce ekleyip eklemediği kontrol edilebilir (İş Mantığı)
-            _context.WatchlistItems.Add(item);
-            await _context.SaveChangesAsync();
+            var result = await _service.AddToWatchlistAsync(item);
 
-            return CreatedAtAction(nameof(GetWatchlist), new { userId = item.UserId }, item); // 201 Created
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return CreatedAtAction(nameof(GetWatchlist),
+                new { userId = item.UserId }, result.Item);
         }
 
-        // PATCH: api/watchlist/5 - Listedeki öğenin durumunu güncelle (Planned, Watching, Completed)
-        // PATCH yerine kolaylık için PUT kullanıyoruz, ancak PATCH daha doğrudur.
-        // [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWatchlistItemStatus(int id, WatchlistItem item)
         {
-            if (id != item.Id)
-            {
-                return BadRequest();
-            }
-            // Sadece 'Status' alanını güncelleyen mantık buraya yazılmalıdır.
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            bool ok = await _service.UpdateWatchlistItemStatusAsync(id, item);
 
-            return NoContent(); // 204 No Content
+            if (!ok)
+                return BadRequest("Invalid item or ID mismatch");
+
+            return NoContent();
         }
 
-
-        // DELETE: api/watchlist/5 - Listeden öğeyi kaldır
-        // [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveFromWatchlist(int id)
         {
-            var item = await _context.WatchlistItems.FindAsync(id);
-            if (item == null)
-            {
+            bool ok = await _service.RemoveFromWatchlistAsync(id);
+
+            if (!ok)
                 return NotFound();
-            }
 
-            _context.WatchlistItems.Remove(item);
-            await _context.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
     }
 }

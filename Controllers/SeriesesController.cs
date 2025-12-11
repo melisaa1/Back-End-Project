@@ -1,122 +1,72 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using RateNowApi.Data;
+using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
+using RateNowApi.Services;
 
 namespace RateNowApi.Controllers
 {
-    [Route("api/[controller]")] // RESTful isimlendirme: /api/series
+    [Route("api/[controller]")]
     [ApiController]
     public class SeriesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly SeriesService _seriesService;
+        private readonly ILogger<SeriesController> _logger;
 
-        // Dependency Injection (DI)
-        public SeriesController(AppDbContext context)
+        public SeriesController(SeriesService seriesService, ILogger<SeriesController> logger)
         {
-            _context = context;
+            _seriesService = seriesService;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Series>>> GetSeries() // 3.1.2 async/await
+        public async Task<ActionResult<IEnumerable<Series>>> GetSeries()
         {
-            if (_context.Serieses == null)
-            {
-                return NotFound(); 
-            }
-            return await _context.Serieses.ToListAsync();
+            var series = await _seriesService.GetAllSeriesAsync();
+            return Ok(series);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Series>> GetSeries(int id)
         {
-            if (_context.Serieses == null)
-            {
-                return NotFound();
-            }
-            
-            var series = await _context.Serieses
-                .Include(s => s.Ratings) // Rating/Review koleksiyonları modele eklenmelidir.
-                .FirstOrDefaultAsync(s => s.Id == id);
+            var series = await _seriesService.GetSeriesByIdAsync(id);
 
             if (series == null)
-            {
-                return NotFound(); // 404 Not Found
-            }
+                return NotFound();
 
-            return series;
+            return Ok(series);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Series>> PostSeries(Series series)
         {
-            if (_context.Serieses == null)
-            {
-                return Problem("Entity set 'AppDbContext.Series' is null.");
-            }
-            
-            _context.Serieses.Add(series);
-            await _context.SaveChangesAsync();
+            var newSeries = await _seriesService.AddSeriesAsync(series);
 
-            // 201 Created durum kodu (3.1.1)
-            return CreatedAtAction(nameof(GetSeries), new { id = series.Id }, series);
+            return CreatedAtAction(nameof(GetSeries), new { id = newSeries.Id }, newSeries);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSeries(int id, Series series)
         {
-            if (id != series.Id)
-            {
-                return BadRequest(); // 400 Bad Request
-            }
+            var updated = await _seriesService.UpdateSeriesAsync(id, series);
 
-            _context.Entry(series).State = EntityState.Modified;
+            if (!updated)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SeriesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSeries(int id)
         {
-            if (_context.Serieses == null)
-            {
+            var deleted = await _seriesService.DeleteSeriesAsync(id);
+
+            if (!deleted)
                 return NotFound();
-            }
-            var series = await _context.Serieses.FindAsync(id);
-            if (series == null)
-            {
-                return NotFound();
-            }
 
-            _context.Serieses.Remove(series);
-            await _context.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
-        }
-
-        private bool SeriesExists(int id)
-        {
-            return (_context.Serieses?.Any(e => e.Id == id)).GetValueOrDefault();
+            return NoContent();
         }
     }
 }

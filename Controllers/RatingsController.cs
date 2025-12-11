@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RateNowApi.Data;
 using RateNowApi.Models;
+using RateNowApi.Services;
 
 namespace RateNowApi.Controllers
 {
@@ -9,91 +8,63 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class RatingsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RatingService _ratingService;
+        private readonly ILogger<RatingsController> _logger;
 
-        public RatingsController(AppDbContext context)
+        public RatingsController(RatingService ratingService, ILogger<RatingsController> logger)
         {
-            _context = context;
+            _ratingService = ratingService;
+            _logger = logger;
         }
 
-        // GET: api/ratings - Tüm puanları getir
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Rating>>> GetRatings()
         {
-            return await _context.Ratings.ToListAsync();
+            var ratings = await _ratingService.GetAllRatingsAsync();
+            return Ok(ratings);
         }
 
-        // GET: api/ratings/5 - Belirli bir puanı getir
         [HttpGet("{id}")]
         public async Task<ActionResult<Rating>> GetRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
+            var rating = await _ratingService.GetRatingByIdAsync(id);
 
             if (rating == null)
-            {
-                return NotFound(); // 404 Not Found
-            }
+                return NotFound();
 
-            return rating;
+            return Ok(rating);
         }
 
-        // POST: api/ratings - Yeni puan ekle
-        // [Authorize] (Kullanıcı giriş yapmış olmalı)
         [HttpPost]
         public async Task<ActionResult<Rating>> PostRating(Rating rating)
         {
-            // Kullanıcının daha önce aynı film/diziye puan verip vermediği kontrol edilebilir (İş Mantığı)
-            _context.Ratings.Add(rating);
-            await _context.SaveChangesAsync();
+            var newRating = await _ratingService.AddRatingAsync(rating);
 
-            return CreatedAtAction(nameof(GetRating), new { id = rating.Id }, rating); // 201 Created
+            return CreatedAtAction(nameof(GetRating), 
+                new { id = newRating.Id }, 
+                newRating);
         }
 
-        
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
-            if (id != rating.Id)
-            {
-                return BadRequest(); // 400 Bad Request
-            }
+            var updated = await _ratingService.UpdateRatingAsync(id, rating);
 
-            _context.Entry(rating).State = EntityState.Modified;
+            if (!updated)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Ratings.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
 
-        // DELETE: api/ratings/5 - Puanı sil
-        // [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
-            if (rating == null)
-            {
+            var deleted = await _ratingService.DeleteRatingAsync(id);
+
+            if (!deleted)
                 return NotFound();
-            }
 
-            _context.Ratings.Remove(rating);
-            await _context.SaveChangesAsync();
-
-            return NoContent(); // 204 No Content
+            return NoContent();
         }
     }
 }
