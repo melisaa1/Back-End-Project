@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using RateNowApi.Data;
 using RateNowApi.Models;
+using RateNowApi.Services.Interfaces;   
 
 namespace RateNowApi.Services
 {
-    public class WatchlistService
+    public class WatchlistService: IWatchlistService
     {
         private readonly AppDbContext _context;
         private readonly ILogger<WatchlistService> _logger;

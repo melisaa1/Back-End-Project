@@ -1,96 +1,143 @@
-using Microsoft.EntityFrameworkCore;
-using RateNowApi.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using RateNowApi.Services;
-using RateNowApi.Configurations;
-using Microsoft.Extensions.Options;
-using Back;
 
+
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+
+using RateNowApi.Data;
+using RateNowApi.Middleware;
+using RateNowApi.Services;
+using System.Text;
+using RateNowApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load Jwt Settings
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection("Jwt")
-);
+#region Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Data Source=movietracker.db"));
+#endregion
 
-var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
-var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
-
-// Register AuthService
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<MoviesService>();
-builder.Services.AddScoped<RatingService>();
-builder.Services.AddScoped<SeriesesService>();
-builder.Services.AddScoped<WatchlistService>();
+#region Services (DI)
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMoviesService, MoviesService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<ISeriesesService, SeriesesService>();
+builder.Services.AddScoped<IWatchlistService, WatchlistService>();
+#endregion
 
 builder.Services.AddHttpContextAccessor();
 
-// Authentication - JWT
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-});
-
-// CORS
+#region CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-    {
         policy.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+              .AllowAnyHeader()
+              .AllowAnyMethod());
 });
+#endregion
+
+#region JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+var jwtKey = jwtSettings["Key"]
+    ?? throw new Exception("Jwt:Key missing in appsettings.json");
+
+var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
+#endregion
+
+#region Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+});
+#endregion
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-// Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Data Source=movietracker.db"));
+#region Swagger + JWT
+
+builder.Services.AddSwaggerGen
+(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RateNowApi",
+        Version = "v1"
+    });
+
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Bearer {token} şeklinde giriniz",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, Array.Empty<string>() }
+    });
+});
+
+#endregion
 
 var app = builder.Build();
 
-// Auto-migrate
+#region Database Migration
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
+#endregion
 
-// Swagger for Development
+#region Middleware
+app.UseMiddleware<ExceptionMiddleware>();
+#endregion
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Middlewares
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

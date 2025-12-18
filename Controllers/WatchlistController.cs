@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
 using RateNowApi.Services;
+using RateNowApi.Services.Interfaces;
+
 
 namespace RateNowApi.Controllers
 {
@@ -8,10 +10,10 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class WatchlistController : ControllerBase
     {
-        private readonly WatchlistService _service;
+        private readonly IWatchlistService _service;
         private readonly ILogger<WatchlistController> _logger;
 
-        public WatchlistController(WatchlistService service, ILogger<WatchlistController> logger)
+        public WatchlistController(IWatchlistService service, ILogger<WatchlistController> logger)
         {
             _service = service;
             _logger = logger;

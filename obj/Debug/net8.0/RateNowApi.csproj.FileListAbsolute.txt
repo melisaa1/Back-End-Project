@@ -8,7 +8,6 @@
 /Users/user/Back-End-Project/bin/Debug/net8.0/BCrypt.Net-Next.dll
 /Users/user/Back-End-Project/bin/Debug/net8.0/Humanizer.dll
 /Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
-/Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
 /Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
 /Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.CodeAnalysis.dll
 /Users/user/Back-End-Project/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.dll

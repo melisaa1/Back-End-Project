@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
 using RateNowApi.Services;
+using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Controllers
 {
@@ -8,10 +9,10 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class RatingsController : ControllerBase
     {
-        private readonly RatingService _ratingService;
+        private readonly IRatingService _ratingService;
         private readonly ILogger<RatingsController> _logger;
 
-        public RatingsController(RatingService ratingService, ILogger<RatingsController> logger)
+        public RatingsController(IRatingService ratingService, ILogger<RatingsController> logger)
         {
             _ratingService = ratingService;
             _logger = logger;

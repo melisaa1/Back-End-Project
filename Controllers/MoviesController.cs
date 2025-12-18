@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
 using RateNowApi.Services;
+using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Controllers
 {
@@ -9,10 +10,10 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        private readonly MoviesService _moviesService;
+        private readonly IMoviesService _moviesService;
         private readonly ILogger<MoviesController> _logger;
 
-        public MoviesController(MoviesService moviesService, ILogger<MoviesController> logger)
+        public MoviesController(IMoviesService moviesService, ILogger<MoviesController> logger)
         {
             _moviesService = moviesService;
             _logger = logger;

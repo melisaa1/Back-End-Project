@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
 using RateNowApi.Services;
+using RateNowApi.Services.Interfaces;   
 
 namespace RateNowApi.Controllers
 {
@@ -9,10 +10,10 @@ namespace RateNowApi.Controllers
     [ApiController]
     public class SeriesController : ControllerBase
     {
-        private readonly SeriesesService _seriesService;
+        private readonly ISeriesesService _seriesService;
         private readonly ILogger<SeriesController> _logger;
 
-        public SeriesController(SeriesesService seriesService, ILogger<SeriesController> logger)
+        public SeriesController(ISeriesesService seriesService, ILogger<SeriesController> logger)
         {
             _seriesService = seriesService;
             _logger = logger;

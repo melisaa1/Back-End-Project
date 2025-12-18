@@ -2,62 +2,60 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using RateNowApi.Models;
-using RateNowApi.Data;
+using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly IConfiguration _config;
-        private readonly AppDbContext _context;
 
-        public AuthService(IConfiguration config, AppDbContext context)
+        public AuthService(IConfiguration config)
         {
             _config = config;
-            _context = context;
         }
 
-        // Hash password
         public string HashPassword(string password)
         {
-            using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         public bool VerifyPassword(string password, string hashedPassword)
         {
-            return HashPassword(password) == hashedPassword;
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
-        // Create JWT Token
         public string GenerateJwtToken(User user)
         {
-            var secretKey = _config["Jwt:Key"] ?? throw new Exception("JWT key is missing");
+            var key = _config["Jwt:Key"] ?? throw new Exception("JWT key is missing");
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
+            var expiryMinutesStr = _config["Jwt:ExpiryMinutes"];
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            _ = int.TryParse(expiryMinutesStr, out int expiryMinutes);
+            if (expiryMinutes <= 0) expiryMinutes = 60;
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)  
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.Email, user.Email),
+                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Role, user.Role ?? "User")
             };
 
             var token = new JwtSecurityToken(
-                issuer,
-                audience,
-                claims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: credentials
             );
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }

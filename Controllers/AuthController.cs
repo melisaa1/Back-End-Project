@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RateNowApi.Models;
 using RateNowApi.Services;
+using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Controllers
 {
@@ -8,13 +9,13 @@ namespace RateNowApi.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly AuthService _authService;
+        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
-            UserService userService,
-            AuthService authService,
+            IUserService userService,
+            IAuthService authService,
             ILogger<AuthController> logger)
         {
             _userService = userService;

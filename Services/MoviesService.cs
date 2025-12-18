@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using RateNowApi.Data;
 using RateNowApi.Models;
+using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Services
 {
-    public class MoviesService
+    public class MoviesService: IMoviesService
     {
         private readonly AppDbContext _context;
         private readonly ILogger<MoviesService> _logger;
