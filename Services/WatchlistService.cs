@@ -5,47 +5,47 @@ using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Services
 {
-    public class WatchlistService: IWatchlistService
+    public class WatchListService: IWatchListService
     {
         private readonly AppDbContext _context;
-        private readonly ILogger<WatchlistService> _logger;
+        private readonly ILogger<WatchListService> _logger;
 
-        public WatchlistService(AppDbContext context, ILogger<WatchlistService> logger)
+        public WatchListService(AppDbContext context, ILogger<WatchListService> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<List<WatchlistItem>> GetWatchlistAsync(int userId)
+        public async Task<List<WatchListItem>> GetWatchListAsync(int userId)
         {
-            _logger.LogInformation("Service: Getting watchlist for UserId: {UserId}", userId);
+            _logger.LogInformation("Service: Getting watchList for UserId: {UserId}", userId);
 
-            return await _context.WatchlistItems
+            return await _context.WatchListItems
                 .Where(w => w.UserId == userId)
                 .ToListAsync();
         }
 
-        public async Task<(bool Success, string Message, WatchlistItem? Item)>
-            AddToWatchlistAsync(WatchlistItem item)
+        public async Task<(bool Success, string Message, WatchListItem? Item)>
+            AddToWatchListAsync(WatchListItem item)
         {
-            _logger.LogInformation("Service: Adding item to watchlist — UserId={UserId}", item.UserId);
+            _logger.LogInformation("Service: Adding item to watchList — UserId={UserId}", item.UserId);
 
             bool movieExists = await _context.Movies.AnyAsync(m => m.Id == item.MovieId);
             if (!movieExists)
                 return (false, "Movie does not exist.", null);
 
-            bool alreadyExists = await _context.WatchlistItems
+            bool alreadyExists = await _context.WatchListItems
                 .AnyAsync(w => w.UserId == item.UserId && w.MovieId == item.MovieId);
 
             if (alreadyExists)
-                return (false, "This movie already exists in the watchlist.", null);
+                return (false, "This movie already exists in the watchList.", null);
 
-            _context.WatchlistItems.Add(item);
+            _context.WatchListItems.Add(item);
             await _context.SaveChangesAsync();
             return (true, "Added successfully", item);
         }
 
-        public async Task<bool> UpdateWatchlistItemStatusAsync(int id, WatchlistItem item)
+        public async Task<bool> UpdateWatchListItemStatusAsync(int id, WatchListItem item)
         {
             if (id != item.Id)
                 return false;
@@ -55,13 +55,13 @@ namespace RateNowApi.Services
             return true;
         }
 
-        public async Task<bool> RemoveFromWatchlistAsync(int id)
+        public async Task<bool> RemoveFromWatchListAsync(int id)
         {
-            var item = await _context.WatchlistItems.FindAsync(id);
+            var item = await _context.WatchListItems.FindAsync(id);
             if (item == null)
                 return false;
 
-            _context.WatchlistItems.Remove(item);
+            _context.WatchListItems.Remove(item);
             await _context.SaveChangesAsync();
             return true;
         }

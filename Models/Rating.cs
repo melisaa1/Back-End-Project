@@ -10,6 +10,6 @@ namespace RateNowApi.Models {
         public int? SeriesId { get; set; }
         public Series? Series { get; set; }
 
-        public int Value { get; set; } 
+        public int Score { get; set; } 
     }
 }

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using RateNowApi.Models; // Doğru Model namespace'i
+using RateNowApi.Models; 
 using BCrypt.Net;
 using System.Collections.Generic;
-using RateNow.Models; // Dictionary için gerekli
+using RateNow.Models; 
 
 namespace RateNowApi.Data
 {
@@ -16,7 +16,7 @@ namespace RateNowApi.Data
         public DbSet<Movie> Movies { get; set; } = null!;
         public DbSet<Series> Serieses { get; set; } = null!;
         public DbSet<Rating> Ratings { get; set; } = null!;
-        public DbSet<WatchlistItem> WatchlistItems { get; set; } = null!;
+        public DbSet<WatchListItem> WatchListItems { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,7 +32,7 @@ namespace RateNowApi.Data
             modelBuilder.Entity<Rating>().HasOne(r => r.Movie).WithMany(m => m.Ratings).HasForeignKey(r => r.MovieId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>().HasOne(r => r.User).WithMany(u => u.Reviews).HasForeignKey(r => r.UserId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>().HasOne(r => r.Movie).WithMany(m => m.Reviews).HasForeignKey(r => r.MovieId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<WatchlistItem>().HasOne(w => w.User).WithMany(u => u.WatchlistItems).HasForeignKey(w => w.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<WatchListItem>().HasOne(w => w.User).WithMany(u => u.WatchListItems).HasForeignKey(w => w.UserId).OnDelete(DeleteBehavior.Cascade);
             
             // Parola Hash'i Zorunlu Yapma (3.1.2)
             modelBuilder.Entity<User>()
@@ -62,8 +62,8 @@ namespace RateNowApi.Data
 
             // Derecelendirme Verileri (Rating)
             modelBuilder.Entity<Rating>().HasData(
-                new Rating { Id = 1, UserId = 1, MovieId = 1, Value = 5 },
-                new Rating { Id = 2, UserId = 2, MovieId = 1, Value = 3 }
+                new Rating { Id = 1, UserId = 1, MovieId = 1, Score= 5 },
+                new Rating { Id = 2, UserId = 2, MovieId = 1, Score = 3 }
             );
 
             // User <-> User (ZORUNLU Çoka-Çok İlişkisi & Seeding - SADECE TEK TANIM)

@@ -2,15 +2,15 @@ using RateNowApi.Models;
 
 namespace RateNowApi.Services.Interfaces
 {
-    public interface IWatchlistService
+    public interface IWatchListService
     {
-        Task<List<WatchlistItem>> GetWatchlistAsync(int userId);
+        Task<List<WatchListItem>> GetWatchListAsync(int userId);
 
-        Task<(bool Success, string Message, WatchlistItem? Item)>
-            AddToWatchlistAsync(WatchlistItem item);
+        Task<(bool Success, string Message, WatchListItem? Item)>
+            AddToWatchListAsync(WatchListItem item);
 
-        Task<bool> UpdateWatchlistItemStatusAsync(int id, WatchlistItem item);
+        Task<bool> UpdateWatchListItemStatusAsync(int id, WatchListItem item);
 
-        Task<bool> RemoveFromWatchlistAsync(int id);
+        Task<bool> RemoveFromWatchListAsync(int id);
     }
 }

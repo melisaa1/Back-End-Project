@@ -1,47 +1,98 @@
 using Microsoft.AspNetCore.Mvc;
+using RateNowApi.DTOs.WatchList;
 using RateNowApi.Models;
-using RateNowApi.Services;
 using RateNowApi.Services.Interfaces;
-
 
 namespace RateNowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WatchlistController : ControllerBase
+    public class WatchListController : ControllerBase
     {
-        private readonly IWatchlistService _service;
-        private readonly ILogger<WatchlistController> _logger;
+        private readonly IWatchListService _service;
+        private readonly ILogger<WatchListController> _logger;
 
-        public WatchlistController(IWatchlistService service, ILogger<WatchlistController> logger)
+        public WatchListController(
+            IWatchListService service,
+            ILogger<WatchListController> logger)
         {
             _service = service;
             _logger = logger;
         }
 
+        // ----------------------------------------------------
+        // GET WATCHLIST BY USER
+        // ----------------------------------------------------
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WatchlistItem>>> GetWatchlist([FromQuery] int userId)
+        public async Task<ActionResult<IEnumerable<WatchListItemDto>>> GetWatchList(
+            [FromQuery] int userId)
         {
-            var list = await _service.GetWatchlistAsync(userId);
-            return Ok(list);
+            var list = await _service.GetWatchListAsync(userId);
+
+            var result = list.Select(w => new WatchListItemDto
+            {
+                Id = w.Id,
+                UserId = w.UserId,
+                MovieId = w.MovieId,
+                Status = w.Status
+            });
+
+            return Ok(result);
         }
 
+        // ----------------------------------------------------
+        // ADD TO WATCHLIST
+        // ----------------------------------------------------
         [HttpPost]
-        public async Task<ActionResult> AddToWatchlist(WatchlistItem item)
+        public async Task<ActionResult<WatchListItemDto>> AddToWatchList(
+            WatchListCreateDto dto)
         {
-            var result = await _service.AddToWatchlistAsync(item);
+            var item = new WatchListItem
+            {
+                UserId = dto.UserId,
+                MovieId = dto.MovieId,
+                SeriesId = dto.SeriesId,
+                Status = dto.Status
+            };
+
+            var result = await _service.AddToWatchListAsync(item);
 
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return CreatedAtAction(nameof(GetWatchlist),
-                new { userId = item.UserId }, result.Item);
+            var response = new WatchListItemDto
+            {
+                Id = result.Item!.Id,
+                UserId = result.Item.UserId,
+                MovieId = result.Item.MovieId,
+                SeriesId = result.Item.SeriesId,
+                Status = result.Item.Status
+            };
+
+            return CreatedAtAction(
+                nameof(GetWatchList),
+                new { userId = response.UserId },
+                response);
         }
 
+        // ----------------------------------------------------
+        // UPDATE WATCHLIST ITEM
+        // ----------------------------------------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWatchlistItemStatus(int id, WatchlistItem item)
+        public async Task<IActionResult> UpdateWatchListitemStatus(
+            int id,
+            WatchListUpdateDto dto)
         {
-            bool ok = await _service.UpdateWatchlistItemStatusAsync(id, item);
+            var item = new WatchListItem
+            {
+                Id = id,
+                Status = dto.Status,
+                UserId = dto.UserId,
+                MovieId = dto.MovieId,
+                SeriesId = dto.SeriesId
+            };
+
+            bool ok = await _service.UpdateWatchListItemStatusAsync(id, item);
 
             if (!ok)
                 return BadRequest("Invalid item or ID mismatch");
@@ -49,10 +100,13 @@ namespace RateNowApi.Controllers
             return NoContent();
         }
 
+        // ----------------------------------------------------
+        // DELETE FROM WATCHLIST
+        // ----------------------------------------------------
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveFromWatchlist(int id)
+        public async Task<IActionResult> RemoveFromWatchList(int id)
         {
-            bool ok = await _service.RemoveFromWatchlistAsync(id);
+            bool ok = await _service.RemoveFromWatchListAsync(id);
 
             if (!ok)
                 return NotFound();

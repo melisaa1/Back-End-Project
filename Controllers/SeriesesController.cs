@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RateNowApi.DTOs.Series;
 using RateNowApi.Models;
-using RateNowApi.Services;
-using RateNowApi.Services.Interfaces;   
-
+using RateNowApi.Services.Interfaces;
+    
 namespace RateNowApi.Controllers
 {
     [Route("api/[controller]")]
@@ -13,43 +13,94 @@ namespace RateNowApi.Controllers
         private readonly ISeriesesService _seriesService;
         private readonly ILogger<SeriesController> _logger;
 
-        public SeriesController(ISeriesesService seriesService, ILogger<SeriesController> logger)
+        public SeriesController(
+            ISeriesesService seriesService,
+            ILogger<SeriesController> logger)
         {
             _seriesService = seriesService;
             _logger = logger;
         }
 
+        // ----------------------------------------------------
+        // GET ALL SERIES
+        // ----------------------------------------------------
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Series>>> GetSeries()
+        public async Task<ActionResult<IEnumerable<SeriesDto>>> GetSeries()
         {
-            var series = await _seriesService.GetAllSeriesAsync();
-            return Ok(series);
+            var seriesList = await _seriesService.GetAllSeriesAsync();
+
+            var result = seriesList.Select(s => new SeriesDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Seasons = s.Seasons
+            });
+
+            return Ok(result);
         }
 
+        // ----------------------------------------------------
+        // GET SERIES BY ID
+        // ----------------------------------------------------
         [HttpGet("{id}")]
-        public async Task<ActionResult<Series>> GetSeries(int id)
+        public async Task<ActionResult<SeriesDto>> GetSeries(int id)
         {
             var series = await _seriesService.GetSeriesByIdAsync(id);
 
             if (series == null)
                 return NotFound();
 
-            return Ok(series);
+            var result = new SeriesDto
+            {
+                Id = series.Id,
+                Title = series.Title,
+                Seasons = series.Seasons
+            };
+
+            return Ok(result);
         }
 
+        // ----------------------------------------------------
+        // CREATE SERIES (ADMIN)
+        // ----------------------------------------------------
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Series>> PostSeries(Series series)
+        public async Task<ActionResult<SeriesDto>> PostSeries(SeriesCreateDto dto)
         {
+            var series = new Series
+            {
+                Title = dto.Title,
+                Seasons = dto.Seasons
+            };
+
             var newSeries = await _seriesService.AddSeriesAsync(series);
 
-            return CreatedAtAction(nameof(GetSeries), new { id = newSeries.Id }, newSeries);
+            var result = new SeriesDto
+            {
+                Id = newSeries.Id,
+                Title = newSeries.Title,
+                Seasons = newSeries.Seasons
+            };
+
+            return CreatedAtAction(nameof(GetSeries),
+                new { id = result.Id },
+                result);
         }
 
+        // ----------------------------------------------------
+        // UPDATE SERIES (ADMIN)
+        // ----------------------------------------------------
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSeries(int id, Series series)
+        public async Task<IActionResult> PutSeries(int id, SeriesUpdateDto dto)
         {
+            var series = new Series
+            {
+                Id = id,
+                Title = dto.Title,
+                Seasons = dto.Seasons
+            };
+
             var updated = await _seriesService.UpdateSeriesAsync(id, series);
 
             if (!updated)
@@ -58,6 +109,9 @@ namespace RateNowApi.Controllers
             return NoContent();
         }
 
+        // ----------------------------------------------------
+        // DELETE SERIES (ADMIN)
+        // ----------------------------------------------------
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSeries(int id)

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using RateNowApi.DTOs;
+using RateNowApi.DTOs.Users;
 using RateNowApi.Models;
-using RateNowApi.Services;
 using RateNowApi.Services.Interfaces;
 
 namespace RateNowApi.Controllers
@@ -27,24 +28,25 @@ namespace RateNowApi.Controllers
         // REGISTER
         // ----------------------------------------------------
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto request)
         {
             _logger.LogInformation("Register attempt for email: {Email}", request.Email);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Check unique email
-            if (await _userService.EmailExistsAsync(request.Email))
+            // Check if email exists
+            bool emailExists = await _userService.EmailExistsAsync(request.Email);
+            if (emailExists)
             {
                 _logger.LogWarning("Registration failed: Email already exists -> {Email}", request.Email);
                 return BadRequest("A user with this email already exists.");
             }
 
-            // Create new user
+            // Create User model (mapping DTO -> Model)
             var user = new User
             {
-                UserName = request.Name,
+                UserName = request.Username,
                 Email = request.Email,
                 PasswordHash = _authService.HashPassword(request.Password),
                 Role = request.Role ?? "User"
@@ -54,18 +56,23 @@ namespace RateNowApi.Controllers
 
             _logger.LogInformation("User registered successfully: {Email}", request.Email);
 
-            return Ok(new
+            // Response DTO
+            var response = new UserResponseDto
             {
-                Message = "User registered successfully",
-                UserId = user.Id
-            });
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role
+            };
+
+            return Ok(response);
         }
 
         // ----------------------------------------------------
         // LOGIN
         // ----------------------------------------------------
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto request)
         {
             _logger.LogInformation("Login attempt for email: {Email}", request.Email);
 
@@ -79,46 +86,30 @@ namespace RateNowApi.Controllers
                 return Unauthorized("Invalid email or password.");
             }
 
-            bool validPassword = _authService.VerifyPassword(request.Password, user.PasswordHash);
+            bool validPassword =
+                _authService.VerifyPassword(request.Password, user.PasswordHash);
 
             if (!validPassword)
             {
-                _logger.LogWarning("Login failed: Invalid password for -> {Email}", request.Email);
+                _logger.LogWarning("Login failed: Invalid password -> {Email}", request.Email);
                 return Unauthorized("Invalid email or password.");
             }
 
-            _logger.LogInformation("Login successful: {Email}", request.Email);
-
             string token = _authService.GenerateJwtToken(user);
 
-            return Ok(new
+            _logger.LogInformation("Login successful: {Email}", request.Email);
+
+            // Response DTO
+            var response = new UserResponseDto
             {
-                Token = token,
-                User = new
-                {
-                    user.Id,
-                    user.UserName,
-                    user.Email,
-                    user.Role
-                }
-            });
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role,
+                Token = token
+            };
+
+            return Ok(response);
         }
-    }
-
-    // ----------------------------------------------------
-    // REQUEST MODELS
-    // ----------------------------------------------------
-    public class RegisterRequest
-    {
-        public string Name { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string? Role { get; set; }
-    }
-
-    public class LoginRequest
-    {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
     }
 }
