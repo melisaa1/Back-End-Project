@@ -1,15 +1,15 @@
-
-
-using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.OpenApi.Models;
 using RateNowApi.Data;
 using RateNowApi.Middleware;
 using RateNowApi.Services;
-using System.Text;
 using RateNowApi.Services.Interfaces;
+using System.Security.Claims;
+using System.Text;
+using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +26,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMoviesService, MoviesService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<ISeriesesService, SeriesesService>();
-builder.Services.AddScoped<IWatchlistService, WatchlistService>();
+builder.Services.AddScoped<IWatchListService, WatchListService>();
 #endregion
 
 builder.Services.AddHttpContextAccessor();
@@ -36,8 +36,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod());
+                .AllowAnyHeader()
+                .AllowAnyMethod());
 });
 #endregion
 
@@ -45,23 +45,33 @@ builder.Services.AddCors(options =>
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 var jwtKey = jwtSettings["Key"]
-    ?? throw new Exception("Jwt:Key missing in appsettings.json");
+    ?? throw new Exception("Jwt:Key is missing in appsettings.json");
 
-var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+var issuer = jwtSettings["Issuer"];
+var audience = jwtSettings["Audience"];
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
-            ClockSkew = TimeSpan.FromSeconds(30)
+
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)
+            ),
+            RoleClaimType = ClaimTypes.Role,
+
+            ClockSkew = System.TimeSpan.FromMinutes(5)
         };
     });
 #endregion
@@ -78,9 +88,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 #region Swagger + JWT
-
-builder.Services.AddSwaggerGen
-(c =>
+builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -88,29 +96,31 @@ builder.Services.AddSwaggerGen
         Version = "v1"
     });
 
-    var jwtSecurityScheme = new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Description = "Bearer {token} şeklinde giriniz",
-        In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-
-    c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+        In = ParameterLocation.Header,
+        Description = "JWT Token giriniz (sadece token, Bearer yazmayın)"
+    });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        { jwtSecurityScheme, Array.Empty<string>() }
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
-
 #endregion
 
 var app = builder.Build();
@@ -140,4 +150,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();
