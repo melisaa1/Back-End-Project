@@ -8,7 +8,11 @@ using RateNowApi.Services;
 using RateNowApi.Services.Interfaces;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using System;
+using Microsoft.IdentityModel.Logging;
+IdentityModelEventSource.ShowPII = true;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +46,7 @@ builder.Services.AddCors(options =>
 #endregion
 
 #region JWT Authentication
+#region JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 var jwtKey = jwtSettings["Key"]
@@ -56,6 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = false;
         options.SaveToken = true;
 
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine("JWT AUTH FAILED: " + ctx.Exception.Message);
+                return Task.CompletedTask;
+            }
+        };
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -69,11 +83,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
             ),
-            RoleClaimType = ClaimTypes.Role,
 
-            ClockSkew = System.TimeSpan.FromMinutes(5)
+            RoleClaimType = ClaimTypes.Role,
+            ClockSkew = TimeSpan.FromMinutes(1)
         };
     });
+#endregion
+
 #endregion
 
 #region Authorization

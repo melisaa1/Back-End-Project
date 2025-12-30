@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\HP\\RateNowApi\\RateNowApi.csproj": {}
+    "/Users/user/Back-End-Project/RateNowApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\RateNowApi\\RateNowApi.csproj": {
+    "/Users/user/Back-End-Project/RateNowApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\RateNowApi\\RateNowApi.csproj",
+        "projectUniqueName": "/Users/user/Back-End-Project/RateNowApi.csproj",
         "projectName": "RateNowApi",
-        "projectPath": "C:\\Users\\HP\\RateNowApi\\RateNowApi.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\RateNowApi\\obj\\",
+        "projectPath": "/Users/user/Back-End-Project/RateNowApi.csproj",
+        "packagesPath": "/Users/user/.nuget/packages/",
+        "outputPath": "/Users/user/Back-End-Project/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/user/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -96,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.415/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
