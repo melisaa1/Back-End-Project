@@ -60,6 +60,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.RequireHttpsMetadata = false;
         options.SaveToken = true;
+        options.IncludeErrorDetails = true;
 
         options.Events = new JwtBearerEvents
         {
@@ -72,10 +73,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+            
 
             ValidIssuer = issuer,
             ValidAudience = audience,
@@ -86,6 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.FromMinutes(1)
+            
         };
     });
 #endregion
@@ -95,8 +98,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #region Authorization
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Admin"));
+    options.AddPolicy("adminOnly", policy =>
+        policy.RequireRole("admin"));
 });
 #endregion
 
@@ -119,7 +122,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Token giriniz (sadece token, Bearer yazmayın)"
+        Description = "JWT Token giriniz"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -158,7 +161,6 @@ app.UseMiddleware<ExceptionMiddleware>();
     app.UseSwaggerUI();
 
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.UseAuthentication();

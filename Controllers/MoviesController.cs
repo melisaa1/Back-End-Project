@@ -61,7 +61,7 @@ namespace RateNowApi.Controllers
         // ----------------------------------------------------
         // CREATE MOVIE (ADMIN)
         // ----------------------------------------------------
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<MovieDto>> PostMovie(MovieCreateDto dto)
         {
@@ -81,10 +81,11 @@ namespace RateNowApi.Controllers
             return CreatedAtAction(nameof(GetMovie), new { id = result.Id }, result);
         }
 
+
         // ----------------------------------------------------
         // UPDATE MOVIE (ADMIN)
         // ----------------------------------------------------
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMovie(int id, MovieUpdateDto dto)
         {
@@ -105,7 +106,7 @@ namespace RateNowApi.Controllers
         // ----------------------------------------------------
         // DELETE MOVIE (ADMIN)
         // ----------------------------------------------------
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
