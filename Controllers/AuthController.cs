@@ -24,9 +24,8 @@ namespace RateNowApi.Controllers
             _logger = logger;
         }
 
-        // ----------------------------------------------------
         // REGISTER
-        // ----------------------------------------------------
+      
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDto request)
         {
@@ -70,9 +69,8 @@ namespace RateNowApi.Controllers
 
 
 
-        // ----------------------------------------------------
         // LOGIN
-        // ----------------------------------------------------
+   
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto request)
         {
@@ -101,7 +99,7 @@ namespace RateNowApi.Controllers
 
             _logger.LogInformation("Login successful: {Email}", request.Email);
 
-            // Response DTO
+           
             var response = new UserResponseDto
             {
                 Id = user.Id,

@@ -4,10 +4,10 @@
 
 namespace RateNowApi.Migrations
 {
-    /// <inheritdoc />
+
     public partial class InitialDatabaseSetup : Migration
     {
-        /// <inheritdoc />
+       
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -205,7 +205,7 @@ namespace RateNowApi.Migrations
                 column: "UserId");
         }
 
-        /// <inheritdoc />
+       
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

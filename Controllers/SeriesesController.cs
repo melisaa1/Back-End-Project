@@ -87,9 +87,9 @@ namespace RateNowApi.Controllers
                 result);
         }
 
-        // ----------------------------------------------------
+
         // UPDATE SERIES (ADMIN)
-        // ----------------------------------------------------
+        
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSeries(int id, SeriesUpdateDto dto)
@@ -109,9 +109,7 @@ namespace RateNowApi.Controllers
             return NoContent();
         }
 
-        // ----------------------------------------------------
         // DELETE SERIES (ADMIN)
-        // ----------------------------------------------------
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSeries(int id)

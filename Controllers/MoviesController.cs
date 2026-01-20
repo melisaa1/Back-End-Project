@@ -21,9 +21,8 @@ namespace RateNowApi.Controllers
             _logger = logger;
         }
 
-        // ----------------------------------------------------
         // GET ALL MOVIES
-        // ----------------------------------------------------
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovies()
         {
@@ -38,9 +37,8 @@ namespace RateNowApi.Controllers
             return Ok(result);
         }
 
-        // ----------------------------------------------------
         // GET MOVIE BY ID
-        // ----------------------------------------------------
+       
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovie(int id)
         {
@@ -58,10 +56,9 @@ namespace RateNowApi.Controllers
             return Ok(result);
         }
 
-        // ----------------------------------------------------
+
         // CREATE MOVIE (ADMIN)
-        // ----------------------------------------------------
-        [Authorize(Roles = "admin")]
+
         [HttpPost]
         public async Task<ActionResult<MovieDto>> PostMovie(MovieCreateDto dto)
         {
@@ -82,10 +79,8 @@ namespace RateNowApi.Controllers
         }
 
 
-        // ----------------------------------------------------
         // UPDATE MOVIE (ADMIN)
-        // ----------------------------------------------------
-        [Authorize(Roles = "admin")]
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMovie(int id, MovieUpdateDto dto)
         {
@@ -103,10 +98,8 @@ namespace RateNowApi.Controllers
             return NoContent();
         }
 
-        // ----------------------------------------------------
         // DELETE MOVIE (ADMIN)
-        // ----------------------------------------------------
-        [Authorize(Roles = "admin")]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {

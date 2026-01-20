@@ -20,9 +20,8 @@ namespace RateNowApi.Controllers
             _logger = logger;
         }
 
-        // ----------------------------------------------------
         // GET WATCHLIST BY USER
-        // ----------------------------------------------------
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WatchListItemDto>>> GetWatchList(
             [FromQuery] int userId)
@@ -40,9 +39,9 @@ namespace RateNowApi.Controllers
             return Ok(result);
         }
 
-        // ----------------------------------------------------
+     
         // ADD TO WATCHLIST
-        // ----------------------------------------------------
+ 
         [HttpPost]
         public async Task<ActionResult<WatchListItemDto>> AddToWatchList(
             WatchListCreateDto dto)

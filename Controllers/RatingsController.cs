@@ -20,9 +20,8 @@ namespace RateNowApi.Controllers
             _logger = logger;
         }
 
-        // ----------------------------------------------------
         // GET ALL RATINGS
-        // ----------------------------------------------------
+    
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RatingDto>>> GetRatings()
         {
@@ -40,9 +39,8 @@ namespace RateNowApi.Controllers
             return Ok(result);
         }
 
-        // ----------------------------------------------------
         // GET RATING BY ID
-        // ----------------------------------------------------
+ 
         [HttpGet("{id}")]
         public async Task<ActionResult<RatingDto>> GetRating(int id)
         {
@@ -63,9 +61,8 @@ namespace RateNowApi.Controllers
             return Ok(result);
         }
 
-        // ----------------------------------------------------
         // CREATE RATING
-        // ----------------------------------------------------
+ 
         [HttpPost]
         public async Task<ActionResult<RatingDto>> PostRating(RatingCreateDto dto)
         {
@@ -93,9 +90,8 @@ namespace RateNowApi.Controllers
                 result);
         }
 
-        // ----------------------------------------------------
         // UPDATE RATING
-        // ----------------------------------------------------
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(int id, RatingUpdateDto dto)
         {
@@ -116,9 +112,9 @@ namespace RateNowApi.Controllers
             return NoContent();
         }
 
-        // ----------------------------------------------------
+
         // DELETE RATING
-        // ----------------------------------------------------
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
