@@ -17,12 +17,14 @@ The application is deployed on **Render** and is publicly accessible.
 
 ---
 
-## 👤 Developer
+## 👥 Team Members
 
-* **Melisa**
+- **Melisa**  
+  Backend architecture, authentication, API design, deployment
 
-> This project was developed individually.
-> All features, architecture, and deployment steps were implemented by a single developer.
+- **Rahmah**  
+  Feature implementation and project contribution
+
 
 ---
 
