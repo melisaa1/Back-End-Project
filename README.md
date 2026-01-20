@@ -5,7 +5,7 @@ The project provides a backend system where users can **track movies and TV seri
 
 ---
 
-## 🚀 Live Deployment
+##  Live Deployment
 
 The application is deployed on **Render** and is publicly accessible.
 
@@ -17,18 +17,19 @@ The application is deployed on **Render** and is publicly accessible.
 
 ---
 
-## 👥 Team Members
+##  Team Members
 
 - **Melisa**  
-  Backend architecture, authentication, API design, deployment
+  Controllers , Database , Model, 
 
 - **Rahmah**  
-  Feature implementation and project contribution
+  Services , Middleware , DTOs
 
+-The rest is together
 
 ---
 
-## 🎯 Project Features
+##  Project Features
 
 * RESTful API architecture
 * User registration and login
@@ -38,7 +39,7 @@ The application is deployed on **Render** and is publicly accessible.
 * Rating system for movies and series
 * User reviews
 * Personal watchlist management
-* Entity relationships (Movies, Series, Ratings, Reviews, Watchlist)
+* Entity relationships (Users, Movies, Series, Ratings, Reviews, Watchlist)
 * Global exception handling middleware
 * Structured logging
 * Entity Framework Core (Code First)
@@ -48,7 +49,7 @@ The application is deployed on **Render** and is publicly accessible.
 
 ---
 
-## 🛠️ Technologies Used
+##  Technologies Used
 
 | Technology                | Description               |
 | ------------------------- | ------------------------- |
@@ -61,7 +62,7 @@ The application is deployed on **Render** and is publicly accessible.
 
 ---
 
-## 🗄️ Database & ORM
+##  Database & ORM
 
 * **Database:** SQLite
 * **ORM:** Entity Framework Core (Code First)
@@ -72,7 +73,7 @@ A SQLite database is used for persistence, managed via Entity Framework Core.
 
 ---
 
-## 🔐 Authentication & Authorization
+##  Authentication & Authorization
 
 Authentication is implemented using **JWT Bearer Tokens**.
 
@@ -104,7 +105,7 @@ Unauthorized requests are automatically rejected by the API.
 
 ---
 
-## 🔗 API Endpoints (Summary)
+##  API Endpoints (Summary)
 
 ### Authentication
 
@@ -149,7 +150,7 @@ All endpoints are fully documented and testable via **Swagger UI**.
 
 ---
 
-## ⚙️ Configuration & Environment Management
+##  Configuration & Environment Management
 
 * Configuration is managed via `appsettings.json`
 * Environment-specific settings are supported
@@ -161,7 +162,7 @@ All endpoints are fully documented and testable via **Swagger UI**.
 
 ---
 
-## 🧾 Logging & Error Handling
+##  Logging & Error Handling
 
 * Global exception handling middleware is implemented
 * Proper HTTP status codes are returned
@@ -170,7 +171,7 @@ All endpoints are fully documented and testable via **Swagger UI**.
 
 ---
 
-## ☁️ Deployment Notes (Docker Clarification)
+##  Deployment Notes (Docker Clarification)
 
 The application is deployed on **Render**.
 
@@ -182,7 +183,7 @@ The application is deployed on **Render**.
 
 ---
 
-## ▶️ Running Locally
+## Running Locally
 
 ### Prerequisites
 
@@ -199,13 +200,13 @@ dotnet run
 ### Swagger (Local)
 
 ```
-https://localhost:<port>/swagger
+https://localhost:<5232>/swagger
 
 ```
 
 ---
 
-## 📌 Course Compliance
+## Course Compliance
 
 This project **fully complies with all Core Requirements** defined in the
 *Backend Development – Final Project Guidelines*.
@@ -223,7 +224,7 @@ No optional bonus features were claimed.
 
 ---
 
-## 📄 License
+## License
 
 This project was developed for **academic purposes** as part of the Backend Development course.
 
